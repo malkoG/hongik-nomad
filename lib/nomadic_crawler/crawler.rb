@@ -43,9 +43,22 @@ module NomadicCrawler
 
       element = @driver.find_element id: 'table_seoul'
 
+      courses_list = []
 
-
+      crawled_list = crawl_courses_list()
+      courses_list = [*courses_list, *crawled_list]
       return element
     end
+
+    protected
+      attr_accessor :secondary_driver
+      def crawl_courses_list(course_list_url)
+        courses_list = []
+        @secondary_driver = Marshal.load(Marshal.dump(@driver))
+
+        # Curriculum Parser
+
+        return courses_list
+      end
   end
 end

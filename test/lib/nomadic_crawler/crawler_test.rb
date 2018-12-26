@@ -17,7 +17,6 @@ module NomadicCrawler
         end
 
         test 'Get Latest Semester' do
-            @crawler.fill_in_the_form
             @crawler.request_latest_semester_curriculum
         end
     end
