@@ -16,6 +16,16 @@ module NomadicCrawler
             assert true # 어떤 종류의 학생인지 체크
         end
 
+        test 'Check if Successfully parsed' do
+            @crawler.fill_in_the_form
+
+            result = @crawler.parse_abstruse_link "javascript:gocn4001(1,2,'A101',0)"
+            assert_equal result[:campus], 1
+            assert_equal result[:category], 2
+            assert_equal result[:department], "A101"
+            assert_equal result[:grade], 0
+        end        
+
         test 'Get Latest Semester' do
             @crawler.request_latest_semester_curriculum
         end
