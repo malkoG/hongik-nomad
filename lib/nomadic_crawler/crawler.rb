@@ -41,14 +41,14 @@ module NomadicCrawler
     def crawl_courses_list(course_category_info)
       courses_list = []
       
-      response = HTTParty.post(ENV['COURSE_LIST_SITE'], course_category_info)
+      response = HTTParty.post(ENV['COURSE_LIST_SITE'], query: course_category_info)
       html_doc = Nokogiri.HTML(response.body)
-      course_codes_list = html_doc.css('#select_list > tbody > tr > td:nth-child(5)').map do |course_id|
+      course_codes_list = html_doc.css('#select_list tr > td:nth-child(5)').map do |html|
+        course_id = html.text.strip
+        return {} if course_id.empty? 
         course_code, course_division = course_id.scanf "%d-%d"
-        { course_code: course_code, course_id: course_id }
+        { course_code: course_code, course_division: course_division }
       end
-
-      courses_list 
 
       return course_codes_list
     end
@@ -56,13 +56,13 @@ module NomadicCrawler
     def parse_abstruse_link(text)
       campus, category, department, grade = text.scanf "javascript:gocn4001(%d,%d,'%[^']',%d)"
       return {
-        year: @year,
-        semester: @semester,
-        campus: campus,
-        category: category,
-        department: department,
-        grade: grade,
-        is_abeek: 1,
+        p_yy: @year,
+        p_hakgi: @semester,
+        p_campus: campus,
+        p_gubun: category,
+        p_dept: department,
+        p_grade: grade,
+        p_abeek: 1,
         p_2014: "on",
         p_2016: 2016
       }

@@ -20,14 +20,31 @@ module NomadicCrawler
             @crawler.fill_in_the_form
 
             result = @crawler.parse_abstruse_link "javascript:gocn4001(1,2,'A101',0)"
-            assert_equal result[:campus], 1
-            assert_equal result[:category], 2
-            assert_equal result[:department], "A101"
-            assert_equal result[:grade], 0
+            assert_equal result[:p_campus], 1
+            assert_equal result[:p_gubun], 2
+            assert_equal result[:p_dept], "A101"
+            assert_equal result[:p_grade], 0
         end        
 
         test 'Get Latest Semester' do
             @crawler.request_latest_semester_curriculum
+        end
+
+        test '강의 목록을 제대로 긁어왔는지 검사' do
+            semester_info = {
+                p_yy: 2018,
+                p_hakgi: 6,
+                p_campus: 1,
+                p_gubun: 1,
+                p_dept: "0001",
+                p_grade: 16,
+                p_abeek: 1,
+                p_2014: "on",
+                p_2016: 2016
+            }
+
+            p @crawler.crawl_courses_list(semester_info)
+            assert_equal @crawler.crawl_courses_list(semester_info).size, 3
         end
     end
 end
