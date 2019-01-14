@@ -38,11 +38,19 @@ module NomadicCrawler
       @semester = semester
     end
 
-    def crawl_courses_list(course_list_url)
+    def crawl_courses_list(course_category_info)
       courses_list = []
-      # Curriculum Parser
+      
+      response = HTTParty.post(ENV['COURSE_LIST_SITE'], course_category_info)
+      html_doc = Nokogiri.HTML(response.body)
+      course_codes_list = html_doc.css('#select_list > tbody > tr > td:nth-child(5)').map do |course_id|
+        course_code, course_division = course_id.scanf "%d-%d"
+        { course_code: course_code, course_id: course_id }
+      end
 
-      return courses_list
+      courses_list 
+
+      return course_codes_list
     end
 
     def parse_abstruse_link(text)
@@ -69,14 +77,13 @@ module NomadicCrawler
 
       element = @driver.find_element id: 'table_seoul'
       html_doc = Nokogiri.HTML(@driver.page_source)
-      html_doc.css("#table_seoul > tbody > tr > td > a").map do |html|
+      course_category_parameters = html_doc.css("#table_seoul > tbody > tr > td > a").map do |html|
         parse_abstruse_link html.attr('href')
-      end
+      end      
 
-      course_category_urls = []
       courses_list = []
-      course_category_urls.each do |course_url|
-        crawled_list = crawl_courses_list(course_url)
+      course_category_parameters.each do |course_category|
+        crawled_list = crawl_courses_list(course_category)
         courses_list = [*courses_list, *crawled_list]
       end
 

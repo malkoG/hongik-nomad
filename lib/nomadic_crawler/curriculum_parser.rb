@@ -18,7 +18,6 @@ module NomadicCrawler
 
     def request_for_course
       @is_vacation = @semester > 2
-      puts @source
       doc = Nokogiri.HTML(open(@source))
       
       @parsed_information = parse_syllabus(doc)
@@ -29,10 +28,6 @@ module NomadicCrawler
         title      = doc.xpath("/html/body/table[1]/tr[2]/td[2]/text()[1]").text.strip
         classrooms = doc.xpath("/html/body/table[1]/tr[4]/td[4]").text.strip
         schedule   = doc.xpath("/html/body/table[1]/tr[3]/td[6]").text.strip
-
-        puts title
-        puts classrooms
-        puts schedule
 
         return {title: title, classrooms: classrooms, schedule: schedule} 
       end
