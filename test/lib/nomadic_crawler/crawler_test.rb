@@ -27,7 +27,10 @@ module NomadicCrawler
         end        
 
         test 'Get Latest Semester' do
-            @crawler.request_latest_semester_curriculum
+            @crawler.fill_in_the_form
+
+            courses = @crawler.request_latest_semester_curriculum
+            assert_not_empty courses
         end
 
         test '강의 목록을 제대로 긁어왔는지 검사' do
@@ -43,7 +46,6 @@ module NomadicCrawler
                 p_2016: 2016
             }
 
-            p @crawler.crawl_courses_list(semester_info)
             assert_equal @crawler.crawl_courses_list(semester_info).size, 3
         end
     end

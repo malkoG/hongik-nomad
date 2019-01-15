@@ -4,7 +4,7 @@ require "scanf"
 
 module NomadicCrawler
   class Crawler
-    SLEEP_TIME=3
+    SLEEP_TIME=2
 
     attr_reader :target_site
     attr_accessor :driver, :year, :semester
@@ -21,7 +21,7 @@ module NomadicCrawler
 
     def fill_in_the_form
       select_tag = Selenium::WebDriver::Support::Select.new(@driver.find_element tag_name: 'select')
-      select_tag.select_by(:index, 0)
+      select_tag.select_by(:index, 1)
       year, semester = select_tag.selected_options[0].property(:value).scanf "%4d%1d"
 
       checkbox_xpath = '//*[@id="select_abeek"]/tbody/tr[2]/td/form/input[2]'
@@ -43,10 +43,10 @@ module NomadicCrawler
       
       response = HTTParty.post(ENV['COURSE_LIST_SITE'], query: course_category_info)
       html_doc = Nokogiri.HTML(response.body)
-      course_codes_list = html_doc.css('#select_list tr > td:nth-child(5)').map do |html|
+      course_codes_list = html_doc.css("#select_list tr > td:nth-child(#{((11..13).include? course_category_info[:p_grade]) ? 6 : 5})").map do |html|
         course_id = html.text.strip
         return {} if course_id.empty? 
-        course_code, course_division = course_id.scanf "%d-%d"
+        course_code, course_division = course_id.split '-'
         { course_code: course_code, course_division: course_division }
       end
 
@@ -84,12 +84,30 @@ module NomadicCrawler
       courses_list = []
       course_category_parameters.each do |course_category|
         crawled_list = crawl_courses_list(course_category)
-        courses_list = [*courses_list, *crawled_list]
+        courses_list.concat crawled_list
+      end
+      
+      course_informations = courses_list.map do |course|
+        course_summary_info = { 
+          year: @year,
+          semester: @semester,
+          course_code: course[:course_code], 
+          course_division: course[:course_division]
+        }
+        
+        @parser = CurriculumParser.new(**course_summary_info)
+        @parser.request_for_course
       end
 
-      return element
+      result = course_informations.map(&:to_s)
+      result.each { |s| puts s }
+      result = result.join('\n')
+      path = Rails.root+"/tmp/courses.txt"
+      File.open path, "w" do |f|
+        f.write result
+      end
+
+      return course_informations
     end
-
-
   end
 end

@@ -6,8 +6,8 @@ module NomadicCrawler
         def setup
             course_info = {year: 2018, semester: 6, course_code: "002551", course_division: 1}
             cyberlecture_info = {year: 2018, semester: 6, course_code: "002060", course_division: 1}
-            @curriculum_parser   = CurriculumParser.new(ENV['CURRICULUM_SITE_BASE'], **course_info)
-            @cyberlecture_parser = CurriculumParser.new(ENV['CURRICULUM_SITE_BASE'], **cyberlecture_info)
+            @curriculum_parser   = CurriculumParser.new(**course_info)
+            @cyberlecture_parser = CurriculumParser.new(**cyberlecture_info)
         end
 
         test '생성자가 제대로 돌아감' do
